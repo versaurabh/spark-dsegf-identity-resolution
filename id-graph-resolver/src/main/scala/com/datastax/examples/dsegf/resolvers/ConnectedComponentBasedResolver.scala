@@ -33,7 +33,7 @@ import org.apache.spark.sql.{DataFrame, SparkSession}
  * => IDs matching the criteria resolved via IDG
  * - dpList -> list of sources which shared this connected knowledge
  */
-object  ConnectedComponentBasedResolver {
+object ConnectedComponentBasedResolver {
   def getResolvedDF(inputDF: DataFrame, idg: DseGraphFrame)(spark: SparkSession): DataFrame = {
     spark.sparkContext.setCheckpointDir("file:///tmp/ccDir")
 
