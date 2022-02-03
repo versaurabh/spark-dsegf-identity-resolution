@@ -10,7 +10,7 @@ import org.apache.spark.sql.types._
 
 import scala.io.Source
 
-object Loader {
+object   Loader {
 
   val identifierSchema = new StructType()
     .add("idValue", StringType, nullable = false)
