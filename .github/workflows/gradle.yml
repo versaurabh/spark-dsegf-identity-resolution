@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
-    
-    - name: Scalafmt
-      run: ./id-graph-loader/gradlew spotlessApply
+      - uses: actions/checkout@v2
+
+      - name: Scalafmt
+        run: if [[ $(./gradlew spotlessCheck | grep SUCCESS) = *SUCCESS* ]]; then echo "OK" else exit 1 fi
