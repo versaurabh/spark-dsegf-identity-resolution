@@ -17,8 +17,7 @@ object IDGResolver {
 
     val graphName = "identity_graph_core_engine"
 
-    val spark = SparkSession
-      .builder
+    val spark = SparkSession.builder
       .master("local[2]")
       .appName("Graph Load Application")
       .getOrCreate()
@@ -35,6 +34,6 @@ object IDGResolver {
     println("Resolved ID Match Distribution By IDType")
     Aggregators.getOutputMatchRates(resolvedDF)(spark).show(false)
 
-    resolvedDF.coalesce(1).write.mode("overwrite").option("header",true).csv(resolvedIDsOutputPath)
+    resolvedDF.coalesce(1).write.mode("overwrite").option("header", true).csv(resolvedIDsOutputPath)
   }
 }

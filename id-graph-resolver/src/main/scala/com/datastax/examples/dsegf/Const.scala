@@ -1,6 +1,6 @@
 package com.datastax.examples.dsegf
 
-import org.apache.spark.sql.types.{DoubleType, StringType, StructType, ArrayType, IntegerType}
+import org.apache.spark.sql.types.{ArrayType, DoubleType, IntegerType, StringType, StructType}
 
 object Const {
   val inputIDsDFSchema = new StructType()

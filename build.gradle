@@ -13,11 +13,13 @@ plugins {
 group 'org.datastax.examples'
 version '1.0-SNAPSHOT'
 
-repositories {
-    maven {
-        url "https://repo.datastax.com/public-repos/"
+allprojects {
+    repositories {
+        maven {
+            url "https://repo.datastax.com/public-repos/"
+        }
+        mavenCentral()
     }
-    mavenCentral()
 }
 
 spotless {

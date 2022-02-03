@@ -32,7 +32,6 @@ import org.apache.spark.sql.{DataFrame, SparkSession}
  * |NI     |device_id    |wKzp          |appnexus_cookie|FRA    |[1, 4, 5]|
  * => IDs matching the criteria resolved via IDG
  * - dpList -> list of sources which shared this connected knowledge
- *
  */
 object ConnectedComponentBasedResolver {
   def getResolvedDF(inputDF: DataFrame, idg: DseGraphFrame)(spark: SparkSession): DataFrame = {
@@ -42,17 +41,23 @@ object ConnectedComponentBasedResolver {
 
     // find out the matching components for the IDs in the inputDF
     val ccsubDF = ccDF.select("component", "idValue", "idType").toDF("component", "idv", "idt")
-    val joinedDF = ccsubDF.join(inputDF, inputDF("idValue") === ccsubDF("idv") && inputDF("idType") === ccsubDF("idt"), "right").drop("idt", "idv")
+    val joinedDF = ccsubDF
+      .join(inputDF, inputDF("idValue") === ccsubDF("idv") && inputDF("idType") === ccsubDF("idt"), "right")
+      .drop("idt", "idv")
 
     // find out all the IDs in the matched components
-    val ccsubWithMetaDF = ccDF.select("component", "idValue", "idType", "countryList", "dpList")
+    val ccsubWithMetaDF = ccDF
+      .select("component", "idValue", "idType", "countryList", "dpList")
       .toDF("componentCC", "idv", "idt", "countryList", "dpList")
-    val allIDsFromMatchingComponentsDF = ccsubWithMetaDF.join(joinedDF, joinedDF("component") === ccsubWithMetaDF("componentCC"))
+    val allIDsFromMatchingComponentsDF =
+      ccsubWithMetaDF.join(joinedDF, joinedDF("component") === ccsubWithMetaDF("componentCC"))
 
     // apply the matching criteria
     val matchingIDsFromMatchingComponentsDF = allIDsFromMatchingComponentsDF
-      .filter((col("matchType") === col("idt") && array_contains(col("countryList"), col("country")))
-        || col("component").isNull)
+      .filter(
+        (col("matchType") === col("idt") && array_contains(col("countryList"), col("country")))
+          || col("component").isNull
+      )
 
     matchingIDsFromMatchingComponentsDF
       .select("component", "idv", "idt", "idValue", "idType", "idv", "idt", "country", "dpList")
