@@ -21,10 +21,5 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     
-    - name: Set up scala
-      uses: olafurpg/setup-scala@v10
-      with:
-          java-version: "adopt@1.8"
-
     - name: Scalafmt
-      run: scalafmt
+      run: ./id-graph-loader/gradlew spotlessApply

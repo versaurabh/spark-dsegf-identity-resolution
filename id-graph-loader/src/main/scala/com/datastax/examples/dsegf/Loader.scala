@@ -11,6 +11,7 @@ import org.apache.spark.sql.types._
 import scala.io.Source
 
 object Loader {
+
   val identifierSchema = new StructType()
     .add("idValue", StringType, nullable = false)
     .add("idType", StringType, nullable = false)
@@ -38,8 +39,7 @@ object Loader {
 
     val graphName = "identity_graph_core_engine"
 
-    val spark = SparkSession
-      .builder
+    val spark = SparkSession.builder
       .master("local[2]")
       .appName("Graph Load Application")
       .getOrCreate()
@@ -48,7 +48,11 @@ object Loader {
 
     val g = spark.dseGraph(graphName)
 
-    val identifierDF = spark.read.schema(identifierSchema).option("multiline", "true").json(vertexPath).withColumn("~label", lit("idNode"))
+    val identifierDF = spark.read
+      .schema(identifierSchema)
+      .option("multiline", "true")
+      .json(vertexPath)
+      .withColumn("~label", lit("idNode"))
 
     // DSE Graph core engine doesn't support BIDIRECTIONAL edges by default and we need to setup indexes
     // to optimize the BIDIRECTIONAL traversal
@@ -64,7 +68,8 @@ object Loader {
       .select(linkSchema.fields.map(f => col(f.name)): _*)
 
     // Convert the linkDF to DSE compatible edge DF
-    val dseDFCompatibleEdgeDF = linkDF.union(oppDirectionLinkDF)
+    val dseDFCompatibleEdgeDF = linkDF
+      .union(oppDirectionLinkDF)
       .withColumn("src", g.idColumn(lit("idNode"), col("idValue1"), col("idType1")))
       .withColumn("~label", lit("link"))
       .withColumn("dst", g.idColumn(lit("idNode"), col("idValue2"), col("idType2")))
@@ -82,12 +87,15 @@ object Loader {
   }
 
   def setupIDGSchema(graphName: String, spark: SparkSession): Unit = {
-    val session = CassandraConnector(spark.sparkContext).withSessionDo(session => session.asInstanceOf[DseSession])
-    session.getCluster.getConfiguration.getGraphOptions.setGraphSubProtocol(GraphProtocol.GRAPHSON_3_0)
+    val session = CassandraConnector(spark.sparkContext)
+      .withSessionDo(session => session.asInstanceOf[DseSession])
+    session.getCluster.getConfiguration.getGraphOptions
+      .setGraphSubProtocol(GraphProtocol.GRAPHSON_3_0)
 
     session.executeGraph(s"system.graph('$graphName').ifExists().drop()")
     session.executeGraph(s"system.graph('$graphName').ifNotExists().create()")
-    val schema = Source.fromInputStream(getClass.getResourceAsStream("/coreGraphSchema.txt")).getLines.mkString
+    val schema =
+      Source.fromInputStream(getClass.getResourceAsStream("/coreGraphSchema.txt")).getLines.mkString
     session.executeGraph(new SimpleGraphStatement(schema).setGraphName(graphName))
   }
 }
