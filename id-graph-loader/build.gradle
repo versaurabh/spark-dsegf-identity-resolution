@@ -1,10 +1,6 @@
 plugins {
     id 'scala'
-    id 'com.diffplug.spotless' version '5.12.5'
 }
-
-group 'org.datastax.examples'
-version '1.0-SNAPSHOT'
 
 repositories {
     maven {
@@ -30,9 +26,3 @@ test {
     useJUnitPlatform()
 }
 
-spotless {
-    scala {
-        // version and configFile are both optional
-        scalafmt('2.6.1').configFile('.scalafmt.conf')
-    }
-}
